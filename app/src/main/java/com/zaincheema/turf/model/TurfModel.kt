@@ -1,5 +1,3 @@
 package com.zaincheema.turf.model
 
-class TurfModel {
-    // Placeholder class until flow is determined
-}
+data class Turf(val helloWorld: String)

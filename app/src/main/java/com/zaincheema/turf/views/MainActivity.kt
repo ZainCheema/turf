@@ -1,12 +1,22 @@
 package com.zaincheema.turf.views
 
-import androidx.appcompat.app.AppCompatActivity
+import android.annotation.SuppressLint
 import android.os.Bundle
-import com.zaincheema.turf.R
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.core.app.ComponentActivity
 
-class MainActivity : AppCompatActivity() {
+@SuppressLint("RestrictedApi")
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContent {
+            hello()
+        }
+    }
+
+    @Composable
+    fun hello() {
+        Text("Helloooooo")
     }
 }
