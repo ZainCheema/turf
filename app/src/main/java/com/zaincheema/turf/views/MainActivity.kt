@@ -1,7 +1,9 @@
 package com.zaincheema.turf.views
 
 import android.annotation.SuppressLint
+import android.os.AsyncTask.execute
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -12,22 +14,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.squareup.moshi.Moshi
 import com.zaincheema.turf.TurfApiService
-import com.zaincheema.turf.model.TurfBox
-import okhttp3.Request
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Retrofit
+import retrofit2.Response
+import retrofit2.Callback
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 
 @SuppressLint("RestrictedApi")
 class MainActivity : AppCompatActivity() {
-
+    val TAG: String = "MainActivity.kt"
     // https://www.pushing-pixels.org/2019/12/04/working-with-retrofit-and-moshi-in-kotlin.html
     // https://github.com/roharon/retrofit2-kotlin-example/blob/master/app/src/main/java/com/example/retrofit2_kotlin/MainActivity.kt
 
@@ -37,13 +41,35 @@ class MainActivity : AppCompatActivity() {
             TurfMap()
         }
 
-        val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl(TurfApiService.API_URL)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
+
+
+        // https://medium.com/mobile-app-development-publication/rxjava-2-making-threading-easy-in-android-in-kotlin-603d8342d6c
+        // RxJava schedulers:
+        // https://stackoverflow.com/questions/33370339/what-is-the-difference-between-schedulers-io-and-schedulers-computation
 
         val service = retrofit.create<TurfApiService>()
-        val call = service.getTurfBoxes()
+        service.checkEndpoint()
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(
+            AndroidSchedulers.mainThread()
+        ).map {
+            response -> if (!response.isNullOrEmpty()) {
+                Log.d(TAG, "Connected to API!")
+                Log.d(TAG, response)
+            } else {
+                Log.e(TAG, "Failed to connect to API")
+            }
+        }
+
+
+
+//        if(response.isSuccessful) {
+//            Log.d(TAG, "Connected to API!")
+//            Log.d(TAG, response.body()!!.toString())
+//        }
+
+
+       // val turf_boxes = response.body()
     }
 
     @OptIn(ExperimentalFoundationApi::class)
