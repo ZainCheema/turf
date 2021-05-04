@@ -22,7 +22,7 @@ interface TurfApiService {
 
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(API_URL)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create().asLenient())
             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .build()
     }
