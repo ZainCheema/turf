@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.zaincheema.turf.TurfApiService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Retrofit
 import retrofit2.Response
@@ -41,35 +42,32 @@ class MainActivity : AppCompatActivity() {
             TurfMap()
         }
 
-
-
         // https://medium.com/mobile-app-development-publication/rxjava-2-making-threading-easy-in-android-in-kotlin-603d8342d6c
         // RxJava schedulers:
         // https://stackoverflow.com/questions/33370339/what-is-the-difference-between-schedulers-io-and-schedulers-computation
 
-        val service = retrofit.create<TurfApiService>()
-        service.checkEndpoint()
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(
-            AndroidSchedulers.mainThread()
-        ).map {
-            response -> if (!response.isNullOrEmpty()) {
-                Log.d(TAG, "Connected to API!")
-                Log.d(TAG, response)
-            } else {
-                Log.e(TAG, "Failed to connect to API")
-            }
-        }
+        val service = TurfApiService.retrofit.create<TurfApiService>()
+
+        val compositeDisposable = CompositeDisposable()
+
+        compositeDisposable.add(
+            service.checkEndpoint()
+                .observeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response -> onSuccess(response) }, { t -> onFailure(t) })
+        )
+
+    }
 
 
+    private fun onSuccess(response: String) {
+        Log.d(TAG, "Connected to API!")
+        Log.d(TAG, response)
+    }
 
-//        if(response.isSuccessful) {
-//            Log.d(TAG, "Connected to API!")
-//            Log.d(TAG, response.body()!!.toString())
-//        }
-
-
-       // val turf_boxes = response.body()
+    private fun onFailure(t: Throwable) {
+        Log.d(TAG, "Failed to connect to API :(")
+        Log.d(TAG, t.toString())
     }
 
     @OptIn(ExperimentalFoundationApi::class)
