@@ -11,7 +11,7 @@ import retrofit2.http.Query
 
 interface TurfApiService {
     @GET("/api/v1/boxes/all")
-    fun getTurfBoxes(): Call<List<TurfBox>>
+    fun getTurfBoxes(): Observable<List<TurfBox>>
 
     @GET("/")
     fun checkEndpoint(): Observable<String>

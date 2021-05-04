@@ -36,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     val TAG: String = "MainActivity.kt"
     // https://www.pushing-pixels.org/2019/12/04/working-with-retrofit-and-moshi-in-kotlin.html
     // https://github.com/roharon/retrofit2-kotlin-example/blob/master/app/src/main/java/com/example/retrofit2_kotlin/MainActivity.kt
+    // https://code.tutsplus.com/tutorials/connect-to-an-api-with-retrofit-rxjava-2-and-kotlin--cms-32133
+    // https://dev.to/paulodhiambo/kotlin-rxjava-retrofit-tutorial-18hn
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,9 @@ class MainActivity : AppCompatActivity() {
         // https://medium.com/mobile-app-development-publication/rxjava-2-making-threading-easy-in-android-in-kotlin-603d8342d6c
         // RxJava schedulers:
         // https://stackoverflow.com/questions/33370339/what-is-the-difference-between-schedulers-io-and-schedulers-computation
+
+        // Moshi
+        // https://proandroiddev.com/getting-started-using-moshi-for-json-parsing-with-kotlin-5a460bf3935a
 
         val service = TurfApiService.retrofit.create<TurfApiService>()
 
@@ -58,16 +63,23 @@ class MainActivity : AppCompatActivity() {
                 .subscribe({ response -> onSuccess(response) }, { t -> onFailure(t) })
         )
 
+        compositeDisposable.add(
+            service.getTurfBoxes()
+                .observeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response -> onSuccess(response.toString()) }, { t -> onFailure(t) })
+        )
+
     }
 
 
     private fun onSuccess(response: String) {
-        Log.d(TAG, "Connected to API!")
+      //  Log.d(TAG, "Connected to API!")
         Log.d(TAG, response)
     }
 
     private fun onFailure(t: Throwable) {
-        Log.d(TAG, "Failed to connect to API :(")
+    //    Log.d(TAG, "Failed to connect to API :(")
         Log.d(TAG, t.toString())
     }
 
