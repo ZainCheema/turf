@@ -13,10 +13,6 @@ interface TurfApiService {
     @GET("/api/v1/boxes/all")
     fun getTurfBoxes(): Observable<List<TurfBox>>
 
-    @GET("/")
-    fun checkEndpoint(): Observable<String>
-
-
     companion object {
        private const val API_URL = "https://turf-api-nzzq3nbe4a-uc.a.run.app/"
 

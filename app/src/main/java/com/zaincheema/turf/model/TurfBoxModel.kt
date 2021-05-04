@@ -6,5 +6,6 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class TurfBox(
     @field: Json(name = "id") val id: Int,
-    @field: Json(name = "color") val color: String)
+    @field: Json(name = "color") val colorHex: Long
+)
 
