@@ -3,10 +3,12 @@ package com.zaincheema.turf.views
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,17 +67,19 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, response.toString())
 
         turfBoxes = response
-//        for(tb in turfBoxes) {
-//
-//        }
+
         setContent {
             TurfMap()
         }
     }
 
     private fun onFailure(t: Throwable) {
-        //    Log.d(TAG, "Failed to connect to API :(")
+        Log.e(TAG, "Failed to connect to API :(")
         Log.d(TAG, t.toString())
+    }
+
+    private fun handleBoxClick(turf_box_id: Int) {
+        Toast.makeText(this, "ayo im box $turf_box_id", Toast.LENGTH_LONG).show()
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -90,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             items(turfBoxes.size) { t ->
                 Box(
-                    Modifier
+                    Modifier.clickable(true, null, null) { handleBoxClick(turfBoxes[t].id) }
                         .aspectRatio(1f)
                         .padding(3.dp)
                         .background(Color(turfBoxes[t].colorHex))
