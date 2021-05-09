@@ -9,12 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,13 +27,24 @@ import retrofit2.create
 
 @SuppressLint("RestrictedApi")
 class MainActivity : AppCompatActivity() {
-    val TAG: String = "MainActivity.kt"
+    private val TAG: String = "MainActivity.kt"
 
     // https://www.pushing-pixels.org/2019/12/04/working-with-retrofit-and-moshi-in-kotlin.html
     // https://github.com/roharon/retrofit2-kotlin-example/blob/master/app/src/main/java/com/example/retrofit2_kotlin/MainActivity.kt
     // https://code.tutsplus.com/tutorials/connect-to-an-api-with-retrofit-rxjava-2-and-kotlin--cms-32133
     // https://dev.to/paulodhiambo/kotlin-rxjava-retrofit-tutorial-18hn
-    lateinit var turfBoxes: List<TurfBox>
+    private lateinit var turfBoxes: List<TurfBox>
+
+    private val colors: List<Color> = listOf(
+        Color(0xFF000000),
+        Color(0xFF888888),
+        Color(0xFFFFFFFF),
+        Color(0xFFFF0000),
+        Color(0xFF00FF00),
+        Color(0xFF0000FF),
+        Color(0xFFFFFF00),
+        Color(0xFF00FFFF),
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +68,8 @@ class MainActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .subscribe({ response -> onSuccess(response) }, { t -> onFailure(t) })
         )
+
+        supportActionBar?.hide()
 
     }
 
@@ -85,21 +97,25 @@ class MainActivity : AppCompatActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun TurfMap() {
-        LazyVerticalGrid(
-            cells = GridCells.Fixed(3),
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Transparent)
-                .padding(8.dp)
-        ) {
-            items(turfBoxes.size) { t ->
-                Box(
-                    Modifier.clickable(true, null, null) { handleBoxClick(turfBoxes[t].id) }
-                        .aspectRatio(1f)
-                        .padding(3.dp)
-                        .background(Color(turfBoxes[t].colorHex))
-                )
+        Column() {
+            TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
+            LazyVerticalGrid(
+                cells = GridCells.Fixed(10),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+                    .padding(8.dp)
+            ) {
+                items(turfBoxes.size) { t ->
+                    Box(
+                        Modifier
+                            .clickable(true, null, null) { handleBoxClick(turfBoxes[t].id) }
+                            .aspectRatio(1f)
+                            .background(Color(turfBoxes[t].colorHex))
+                    )
+                }
             }
+            //ScrollableR
         }
     }
 }
