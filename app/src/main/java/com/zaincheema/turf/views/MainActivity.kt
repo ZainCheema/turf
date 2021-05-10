@@ -23,18 +23,14 @@ import com.zaincheema.turf.model.TurfBox
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import okhttp3.ResponseBody
 import retrofit2.create
 
 @SuppressLint("RestrictedApi")
 class MainActivity : AppCompatActivity() {
+
     private val TAG: String = "MainActivity.kt"
-
-    // https://www.pushing-pixels.org/2019/12/04/working-with-retrofit-and-moshi-in-kotlin.html
-    // https://github.com/roharon/retrofit2-kotlin-example/blob/master/app/src/main/java/com/example/retrofit2_kotlin/MainActivity.kt
-    // https://code.tutsplus.com/tutorials/connect-to-an-api-with-retrofit-rxjava-2-and-kotlin--cms-32133
-    // https://dev.to/paulodhiambo/kotlin-rxjava-retrofit-tutorial-18hn
     private lateinit var turfBoxes: List<TurfBox>
-
     private val colors: List<Color> = listOf(
         Color(0xFF000000),
         Color(0xFF888888),
@@ -45,36 +41,30 @@ class MainActivity : AppCompatActivity() {
         Color(0xFFFFFF00),
         Color(0xFF00FFFF),
     )
+    private var compositeDisposable = CompositeDisposable()
+
+    private val service = TurfApiService.retrofit.create<TurfApiService>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // https://medium.com/mobile-app-development-publication/rxjava-2-making-threading-easy-in-android-in-kotlin-603d8342d6c
-        // RxJava schedulers:
-        // https://stackoverflow.com/questions/33370339/what-is-the-difference-between-schedulers-io-and-schedulers-computation
-
-        // Moshi
-        // https://proandroiddev.com/getting-started-using-moshi-for-json-parsing-with-kotlin-5a460bf3935a
-
-        // RxJava UI Thread
-        // https://stackoverflow.com/questions/60688724/android-rxjava-update-ui-from-background-thread-using-observable
-
-        val service = TurfApiService.retrofit.create<TurfApiService>()
-
-        val compositeDisposable = CompositeDisposable()
 
         compositeDisposable.add(
             service.getTurfBoxes()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe({ response -> onSuccess(response) }, { t -> onFailure(t) })
+                .subscribe({ response -> onGetSuccess(response) }, { t -> onGetFailure(t) })
         )
 
         supportActionBar?.hide()
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
+    }
 
-    private fun onSuccess(response: List<TurfBox>) {
+    private fun onGetSuccess(response: List<TurfBox>) {
         Log.d(TAG, "Connected to API, loaded in Turf Boxes")
         Log.d(TAG, response.toString())
 
@@ -85,13 +75,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onFailure(t: Throwable) {
+    private fun onGetFailure(t: Throwable) {
         Log.e(TAG, "Failed to connect to API :(")
         Log.d(TAG, t.toString())
     }
 
-    private fun handleBoxClick(turf_box_id: Int) {
-        Toast.makeText(this, "ayo im box $turf_box_id", Toast.LENGTH_LONG).show()
+    private fun onPutSuccess(response: ResponseBody) {
+        Log.d(TAG, response.string())
+    }
+
+    private fun onPutFailure(t: Throwable) {
+        Log.e(TAG, "Color change failed :(")
+        Log.d(TAG, t.toString())
+    }
+
+    @ExperimentalUnsignedTypes
+    private fun handleBoxClick(tb: TurfBox) {
+        Toast.makeText(this, "ayo im box ${tb.id}", Toast.LENGTH_LONG).show()
+
+        compositeDisposable.add(
+            service.updateTurfBoxColor(tb.id, tb)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ response -> onPutSuccess(response) }, { t -> onPutFailure(t) })
+        )
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -109,13 +116,12 @@ class MainActivity : AppCompatActivity() {
                 items(turfBoxes.size) { t ->
                     Box(
                         Modifier
-                            .clickable(true, null, null) { handleBoxClick(turfBoxes[t].id) }
+                            .clickable(true, null, null) { handleBoxClick(turfBoxes[t]) }
                             .aspectRatio(1f)
                             .background(Color(turfBoxes[t].colorHex))
                     )
                 }
             }
-            //ScrollableR
         }
     }
 }

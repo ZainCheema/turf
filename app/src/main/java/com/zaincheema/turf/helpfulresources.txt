@@ -1,0 +1,15 @@
+    // https://www.pushing-pixels.org/2019/12/04/working-with-retrofit-and-moshi-in-kotlin.html
+    // https://github.com/roharon/retrofit2-kotlin-example/blob/master/app/src/main/java/com/example/retrofit2_kotlin/MainActivity.kt
+    // https://code.tutsplus.com/tutorials/connect-to-an-api-with-retrofit-rxjava-2-and-kotlin--cms-32133
+    // https://dev.to/paulodhiambo/kotlin-rxjava-retrofit-tutorial-18hn
+
+
+        // https://medium.com/mobile-app-development-publication/rxjava-2-making-threading-easy-in-android-in-kotlin-603d8342d6c
+        // RxJava schedulers:
+        // https://stackoverflow.com/questions/33370339/what-is-the-difference-between-schedulers-io-and-schedulers-computation
+
+        // Moshi
+        // https://proandroiddev.com/getting-started-using-moshi-for-json-parsing-with-kotlin-5a460bf3935a
+
+        // RxJava UI Thread
+        // https://stackoverflow.com/questions/60688724/android-rxjava-update-ui-from-background-thread-using-observable
