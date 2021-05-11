@@ -3,6 +3,8 @@
     // https://code.tutsplus.com/tutorials/connect-to-an-api-with-retrofit-rxjava-2-and-kotlin--cms-32133
     // https://dev.to/paulodhiambo/kotlin-rxjava-retrofit-tutorial-18hn
 
+    // https://medium.com/android-news/handmade-backend-for-android-app-using-python-flask-framework-b173ba2bb3aa
+
 
         // https://medium.com/mobile-app-development-publication/rxjava-2-making-threading-easy-in-android-in-kotlin-603d8342d6c
         // RxJava schedulers:
