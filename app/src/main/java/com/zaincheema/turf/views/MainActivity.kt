@@ -86,12 +86,13 @@ class MainActivity : AppCompatActivity() {
     private fun handleBoxClick(tb: TurfBox) {
         Toast.makeText(this, "ayo im box ${tb.id}", Toast.LENGTH_LONG).show()
 
-        service.updateTurfBoxColor(tb).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                Log.d(TAG, response.toString())
+
+        service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = 0xFFFFFF00)).enqueue(object : Callback<TurfBox> {
+            override fun onResponse(call: Call<TurfBox>, response: Response<TurfBox>) {
+                Log.d(TAG, response.body().toString())
             }
 
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+            override fun onFailure(call: Call<TurfBox>, t: Throwable) {
                 Log.e(TAG, "Color change failed :(")
                 Log.d(TAG, t.toString())
             }
