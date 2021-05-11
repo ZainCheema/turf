@@ -24,6 +24,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.create
 
 @SuppressLint("RestrictedApi")
@@ -80,25 +83,20 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, t.toString())
     }
 
-    private fun onPutSuccess(response: ResponseBody) {
-        Log.d(TAG, response.string())
-    }
-
-    private fun onPutFailure(t: Throwable) {
-        Log.e(TAG, "Color change failed :(")
-        Log.d(TAG, t.toString())
-    }
-
-    @ExperimentalUnsignedTypes
     private fun handleBoxClick(tb: TurfBox) {
         Toast.makeText(this, "ayo im box ${tb.id}", Toast.LENGTH_LONG).show()
 
-        compositeDisposable.add(
-            service.updateTurfBoxColor(tb.id, tb)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({ response -> onPutSuccess(response) }, { t -> onPutFailure(t) })
-        )
+        service.updateTurfBoxColor(tb).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                Log.d(TAG, response.toString())
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e(TAG, "Color change failed :(")
+                Log.d(TAG, t.toString())
+            }
+
+        })
     }
 
     @OptIn(ExperimentalFoundationApi::class)

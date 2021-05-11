@@ -1,6 +1,5 @@
 package com.zaincheema.turf
 
-import com.squareup.moshi.Json
 import com.zaincheema.turf.model.TurfBox
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.ResponseBody
@@ -10,12 +9,14 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 
+// https://stackoverflow.com/questions/22947905/flask-example-with-post
+
 interface TurfApiService {
     @GET("/api/v1/boxes/")
     fun getTurfBoxes(): Observable<List<TurfBox>>
 
-    @PUT("/api/v1/boxes/{id}")
-    fun updateTurfBoxColor(@Path("id") id: Int, @Body tb: TurfBox): Observable<ResponseBody>
+    @POST("/api/v1/boxes/")
+    fun updateTurfBoxColor(@Body tb: TurfBox): Call<ResponseBody>
 
     companion object {
        private const val API_URL = "https://turf-api-nzzq3nbe4a-uc.a.run.app/"
