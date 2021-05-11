@@ -16,7 +16,7 @@ interface TurfApiService {
     fun getTurfBoxes(): Observable<List<TurfBox>>
 
     @POST("/api/v1/boxes/")
-    fun updateTurfBoxColor(@Body tb: TurfBox): Call<ResponseBody>
+    fun updateTurfBoxColor(@Body tb: TurfBox): Call<TurfBox>
 
     companion object {
        private const val API_URL = "https://turf-api-nzzq3nbe4a-uc.a.run.app/"
