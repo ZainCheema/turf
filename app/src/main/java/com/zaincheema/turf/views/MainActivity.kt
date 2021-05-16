@@ -43,15 +43,15 @@ class MainActivity : AppCompatActivity() {
     private var compositeDisposable = CompositeDisposable()
     private val service = TurfApiService.retrofit.create<TurfApiService>()
 
-    private val colors: List<Color> = listOf(
-        Color(0xFF000000),
-        Color(0xFF888888),
-        Color(0xFFFFFFFF),
-        Color(0xFFFF0000),
-        Color(0xFF00FF00),
-        Color(0xFF0000FF),
-        Color(0xFFFFFF00),
-        Color(0xFF00FFFF),
+    private val colors = listOf(
+        0xFF000000, // Black
+        0xFF888888, // Grey
+        0xFFFFFFFF, // White
+        0xFFFF0000, // Red
+        0xFF00FF00, // Green
+        0xFF0000FF, // Blue
+        0xFFFFFF00, // Yellow
+        0xFF00FFFF, // Light Blue
     )
 
     @ExperimentalAnimationApi
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
                                 .scale(0.75f)
                                 .aspectRatio(1f)
                                 .padding(8.dp)
-                                .background(item)
+                                .background(Color(item))
                         ) {
                             //Text(item) // card's content
                         }
