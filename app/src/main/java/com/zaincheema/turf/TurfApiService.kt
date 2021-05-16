@@ -2,7 +2,6 @@ package com.zaincheema.turf
 
 import com.zaincheema.turf.model.TurfBox
 import io.reactivex.rxjava3.core.Observable
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
