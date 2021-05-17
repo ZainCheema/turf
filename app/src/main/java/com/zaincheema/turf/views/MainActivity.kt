@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -21,10 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.vanpra.composematerialdialogs.MaterialDialog
-import com.vanpra.composematerialdialogs.color.ColorPalette
-import com.vanpra.composematerialdialogs.color.colorChooser
 import com.zaincheema.turf.TurfApiService
 import com.zaincheema.turf.model.TurfBox
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -34,6 +31,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.create
+import kotlin.properties.Delegates
 
 @SuppressLint("RestrictedApi")
 class MainActivity : AppCompatActivity() {
@@ -43,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var compositeDisposable = CompositeDisposable()
     private val service = TurfApiService.retrofit.create<TurfApiService>()
 
-    private val colors = listOf(
+    private val colorsHex = listOf(
         0xFF000000, // Black
         0xFF888888, // Grey
         0xFFFFFFFF, // White
@@ -53,6 +51,8 @@ class MainActivity : AppCompatActivity() {
         0xFFFFFF00, // Yellow
         0xFF00FFFF, // Light Blue
     )
+
+    private var selectedColorHex: Long? = null
 
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,10 +91,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleBoxClick(tb: TurfBox) {
-        Toast.makeText(this, "ayo im box ${tb.id}", Toast.LENGTH_LONG).show()
-        service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = 0xFFFFFF00))
+        if (selectedColorHex != null) {
+        service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
             .enqueue(object : Callback<TurfBox> {
                 override fun onResponse(call: Call<TurfBox>, response: Response<TurfBox>) {
+                    Toast.makeText(baseContext, "Color changed to $selectedColorHex", Toast.LENGTH_LONG).show()
+                    selectedColorHex = null
                     Log.d(TAG, response.body().toString())
                 }
 
@@ -104,13 +106,17 @@ class MainActivity : AppCompatActivity() {
                 }
 
             })
+        } else {
+            Toast.makeText(baseContext, "Color hasn't been selected!", Toast.LENGTH_LONG).show()
+        }
     }
 
     @ExperimentalAnimationApi
     @OptIn(ExperimentalFoundationApi::class)
+    @Preview
     @Composable
     fun TurfMap() {
-        var showChooser = remember { mutableStateOf(false) }
+        var showTimer = remember { mutableStateOf(false) }
         Column {
             TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
             LazyVerticalGrid(
@@ -124,7 +130,6 @@ class MainActivity : AppCompatActivity() {
                         Modifier
                             .clickable(true, null, null) {
                                 handleBoxClick(turfBoxes[t])
-                                showChooser.value = true
                             }
                             .aspectRatio(1f)
                             .background(Color(turfBoxes[t].colorHex))
@@ -135,17 +140,23 @@ class MainActivity : AppCompatActivity() {
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 // LazyRow to display your items horizontally
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = rememberLazyListState()
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    state = rememberLazyListState(),
+                    contentPadding = PaddingValues(all = 1.dp)
                 ) {
-                    items(colors) { item ->
+                    items(colorsHex) { item ->
                         Box(
                             modifier = Modifier
                                 //.size(16.dp)
                                 .scale(0.75f)
                                 .aspectRatio(1f)
-                                .padding(8.dp)
+                               // .padding(8.dp)
                                 .background(Color(item))
+                                .clickable {
+                                    Toast.makeText(baseContext, "color selected: $item", Toast.LENGTH_LONG).show()
+                                    selectedColorHex = item
+                                }
                         ) {
                             //Text(item) // card's content
                         }
