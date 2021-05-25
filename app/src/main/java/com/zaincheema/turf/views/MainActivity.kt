@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ response -> onGetSuccess(response) }, { t -> onGetFailure(t) })
-        )
+       )
 
         supportActionBar?.hide()
     }
@@ -104,7 +104,6 @@ class MainActivity : AppCompatActivity() {
                     Log.e(TAG, "Color change failed :(")
                     Log.d(TAG, t.toString())
                 }
-
             })
         } else {
             Toast.makeText(baseContext, "Color hasn't been selected!", Toast.LENGTH_LONG).show()
@@ -113,7 +112,6 @@ class MainActivity : AppCompatActivity() {
 
     @ExperimentalAnimationApi
     @OptIn(ExperimentalFoundationApi::class)
-    @Preview
     @Composable
     fun TurfMap() {
         var showTimer = remember { mutableStateOf(false) }
@@ -148,10 +146,8 @@ class MainActivity : AppCompatActivity() {
                     items(colorsHex) { item ->
                         Box(
                             modifier = Modifier
-                                //.size(16.dp)
                                 .scale(0.75f)
                                 .aspectRatio(1f)
-                               // .padding(8.dp)
                                 .background(Color(item))
                                 .clickable {
                                     Toast.makeText(baseContext, "color selected: $item", Toast.LENGTH_LONG).show()
