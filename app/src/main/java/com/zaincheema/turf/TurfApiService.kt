@@ -1,6 +1,7 @@
 package com.zaincheema.turf
 
 import com.zaincheema.turf.model.TurfBox
+import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -16,6 +17,9 @@ interface TurfApiService {
 
     @POST("/api/v1/boxes/")
     fun updateTurfBoxColor(@Body tb: TurfBox): Call<TurfBox>
+    
+    @GET("/api/v1/boxes/box")
+    fun notifyDbChange(): Flowable<TurfBox>
 
     companion object {
        private const val API_URL = "https://turf-api-nzzq3nbe4a-uc.a.run.app/"

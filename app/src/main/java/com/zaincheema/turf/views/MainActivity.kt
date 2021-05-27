@@ -65,6 +65,13 @@ class MainActivity : AppCompatActivity() {
                 .subscribe({ response -> onGetSuccess(response) }, { t -> onGetFailure(t) })
        )
 
+        compositeDisposable.add(
+            service.notifyDbChange()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe { response -> onChangeDetected(response) }
+        )
+
         supportActionBar?.hide()
     }
 
@@ -88,6 +95,11 @@ class MainActivity : AppCompatActivity() {
     private fun onGetFailure(t: Throwable) {
         Log.e(TAG, "Failed to connect to API :(")
         Log.d(TAG, t.toString())
+    }
+
+    private fun onChangeDetected(response: TurfBox) {
+        Log.d(TAG, "CHANGE DETECTED")
+        Log.d(TAG, response.toString())
     }
 
     private fun handleBoxClick(tb: TurfBox) {
