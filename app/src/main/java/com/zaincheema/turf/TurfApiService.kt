@@ -17,9 +17,6 @@ interface TurfApiService {
 
     @POST("/api/v1/boxes/")
     fun updateTurfBoxColor(@Body tb: TurfBox): Call<TurfBox>
-    
-    @GET("/api/v1/boxes/box")
-    fun notifyDbChange(): Flowable<TurfBox>
 
     companion object {
        private const val API_URL = "https://turf-api-nzzq3nbe4a-uc.a.run.app/"

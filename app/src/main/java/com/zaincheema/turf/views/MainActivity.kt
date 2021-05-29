@@ -27,6 +27,7 @@ import com.zaincheema.turf.model.TurfBox
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -62,15 +63,8 @@ class MainActivity : AppCompatActivity() {
             service.getTurfBoxes()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe({ response -> onGetSuccess(response) }, { t -> onGetFailure(t) })
+                .subscribe({ response -> onGetSuccess(response) }, { t -> onFailure(t) })
        )
-
-        compositeDisposable.add(
-            service.notifyDbChange()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe { response -> onChangeDetected(response) }
-        )
 
         supportActionBar?.hide()
     }
@@ -92,9 +86,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onGetFailure(t: Throwable) {
-        Log.e(TAG, "Failed to connect to API :(")
-        Log.d(TAG, t.toString())
+    private fun onFailure(t: Throwable) {
+        Log.e(TAG, "Failed")
+        Log.e(TAG, t.message.toString())
     }
 
     private fun onChangeDetected(response: TurfBox) {
@@ -109,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<TurfBox>, response: Response<TurfBox>) {
                     Toast.makeText(baseContext, "Color changed to $selectedColorHex", Toast.LENGTH_LONG).show()
                     selectedColorHex = null
-                    Log.d(TAG, response.body().toString())
+                    Log.d(TAG, "Color changed to $selectedColorHex")
                 }
 
                 override fun onFailure(call: Call<TurfBox>, t: Throwable) {
