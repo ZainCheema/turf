@@ -20,19 +20,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.zaincheema.turf.TurfApiService
 import com.zaincheema.turf.model.TurfBox
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.create
-import kotlin.properties.Delegates
+import java.util.concurrent.TimeUnit
 
 @SuppressLint("RestrictedApi")
 class MainActivity : AppCompatActivity() {
@@ -59,15 +57,21 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        compositeDisposable.add(
-            service.getTurfBoxes()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({ response -> onGetSuccess(response) }, { t -> onFailure(t) })
-       )
+        val disposable = io.reactivex.rxjava3.core.Observable.interval(0, 1, TimeUnit.SECONDS)
+            .timeInterval()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                service.getTurfBoxes()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ response -> onGetSuccess(response) }, { t -> onFailure(t) })
+            }
+
+        compositeDisposable.add(disposable)
 
         supportActionBar?.hide()
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -91,26 +95,25 @@ class MainActivity : AppCompatActivity() {
         Log.e(TAG, t.message.toString())
     }
 
-    private fun onChangeDetected(response: TurfBox) {
-        Log.d(TAG, "CHANGE DETECTED")
-        Log.d(TAG, response.toString())
-    }
-
     private fun handleBoxClick(tb: TurfBox) {
         if (selectedColorHex != null) {
-        service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
-            .enqueue(object : Callback<TurfBox> {
-                override fun onResponse(call: Call<TurfBox>, response: Response<TurfBox>) {
-                    Toast.makeText(baseContext, "Color changed to $selectedColorHex", Toast.LENGTH_LONG).show()
-                    selectedColorHex = null
-                    Log.d(TAG, "Color changed to $selectedColorHex")
-                }
+            service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
+                .enqueue(object : Callback<TurfBox> {
+                    override fun onResponse(call: Call<TurfBox>, response: Response<TurfBox>) {
+                        Toast.makeText(
+                            baseContext,
+                            "Color changed to $selectedColorHex",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        selectedColorHex = null
+                        Log.d(TAG, "Color changed to $selectedColorHex")
+                    }
 
-                override fun onFailure(call: Call<TurfBox>, t: Throwable) {
-                    Log.e(TAG, "Color change failed :(")
-                    Log.d(TAG, t.toString())
-                }
-            })
+                    override fun onFailure(call: Call<TurfBox>, t: Throwable) {
+                        Log.e(TAG, "Color change failed :(")
+                        Log.d(TAG, t.toString())
+                    }
+                })
         } else {
             Toast.makeText(baseContext, "Color hasn't been selected!", Toast.LENGTH_LONG).show()
         }
@@ -156,7 +159,13 @@ class MainActivity : AppCompatActivity() {
                                 .aspectRatio(1f)
                                 .background(Color(item))
                                 .clickable {
-                                    Toast.makeText(baseContext, "color selected: $item", Toast.LENGTH_LONG).show()
+                                    Toast
+                                        .makeText(
+                                            baseContext,
+                                            "color selected: $item",
+                                            Toast.LENGTH_LONG
+                                        )
+                                        .show()
                                     selectedColorHex = item
                                 }
                         ) {
@@ -168,5 +177,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
 
