@@ -1,5 +1,5 @@
 package com.zaincheema.turf.viewmodels
 
-class TurfViewModel {
+class BoxesViewModel {
     // Placeholder class until flow is determined
 }
