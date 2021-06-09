@@ -22,7 +22,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.zaincheema.turf.TurfApiService
-import com.zaincheema.turf.model.TurfBox
+import com.zaincheema.turf.model.Box
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
 
     private val TAG: String = "MainActivity.kt"
-    private lateinit var turfBoxes: List<TurfBox>
+    private lateinit var Boxes: List<Box>
     private var compositeDisposable = CompositeDisposable()
     private val service = TurfApiService.retrofit.create<TurfApiService>()
 
@@ -79,11 +79,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     @ExperimentalAnimationApi
-    private fun onGetSuccess(response: List<TurfBox>) {
+    private fun onGetSuccess(response: List<Box>) {
         Log.d(TAG, "Connected to API, loaded in Turf Boxes")
         Log.d(TAG, response.toString())
 
-        turfBoxes = response
+        Boxes = response
 
         setContent {
             TurfMap()
@@ -95,11 +95,11 @@ class MainActivity : AppCompatActivity() {
         Log.e(TAG, t.message.toString())
     }
 
-    private fun handleBoxClick(tb: TurfBox) {
+    private fun handleBoxClick(tb: Box) {
         if (selectedColorHex != null) {
             service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
-                .enqueue(object : Callback<TurfBox> {
-                    override fun onResponse(call: Call<TurfBox>, response: Response<TurfBox>) {
+                .enqueue(object : Callback<Box> {
+                    override fun onResponse(call: Call<Box>, response: Response<Box>) {
                         Toast.makeText(
                             baseContext,
                             "Color changed to $selectedColorHex",
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                         Log.d(TAG, "Color changed to $selectedColorHex")
                     }
 
-                    override fun onFailure(call: Call<TurfBox>, t: Throwable) {
+                    override fun onFailure(call: Call<Box>, t: Throwable) {
                         Log.e(TAG, "Color change failed :(")
                         Log.d(TAG, t.toString())
                     }
@@ -132,14 +132,14 @@ class MainActivity : AppCompatActivity() {
                     .background(Color.Transparent)
                     .padding(8.dp)
             ) {
-                items(turfBoxes.size) { t ->
+                items(Boxes.size) { t ->
                     Box(
                         Modifier
                             .clickable(true, null, null) {
-                                handleBoxClick(turfBoxes[t])
+                                handleBoxClick(Boxes[t])
                             }
                             .aspectRatio(1f)
-                            .background(Color(turfBoxes[t].colorHex))
+                            .background(Color(Boxes[t].colorHex))
                     )
                 }
             }
