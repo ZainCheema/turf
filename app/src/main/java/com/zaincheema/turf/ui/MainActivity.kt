@@ -1,4 +1,4 @@
-package com.zaincheema.turf.views
+package com.zaincheema.turf.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -15,14 +15,13 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.zaincheema.turf.TurfApiService
+import com.zaincheema.turf.api.TurfApiService
 import com.zaincheema.turf.model.Box
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -33,6 +32,7 @@ import retrofit2.create
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("RestrictedApi")
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val TAG: String = "MainActivity.kt"
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             .timeInterval()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                service.getTurfBoxes()
+                service.getBoxes()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({ response -> onGetSuccess(response) }, { t -> onFailure(t) })
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         Boxes = response
 
         setContent {
-            TurfMap()
+            DisplayBoxes()
         }
     }
 
@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleBoxClick(tb: Box) {
         if (selectedColorHex != null) {
-            service.updateTurfBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
+            service.updateBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
                 .enqueue(object : Callback<Box> {
                     override fun onResponse(call: Call<Box>, response: Response<Box>) {
                         Toast.makeText(
@@ -122,8 +122,7 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalAnimationApi
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun TurfMap() {
-        var showTimer = remember { mutableStateOf(false) }
+    fun DisplayBoxes() {
         Column {
             TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
             LazyVerticalGrid(

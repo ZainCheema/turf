@@ -2,16 +2,16 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+kapt {
+    generateStubs = true
 }
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
-
-    dataBinding {
-        enabled true
-    }
-
 
     defaultConfig {
         applicationId "com.zaincheema.turf"
@@ -21,13 +21,18 @@ android {
         versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
 
     buildTypes {
+        debug {
+            buildConfigField "String", "API_URL", "\"https://turf-api-nzzq3nbe4a-uc.a.run.app/\""
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "API_URL", "\"https://turf-api-nzzq3nbe4a-uc.a.run.app/\""
         }
     }
     compileOptions {
@@ -80,6 +85,9 @@ dependencies {
     // Integration with observables
     implementation 'androidx.compose.runtime:runtime-livedata:1.0.0-beta05'
     implementation 'androidx.compose.runtime:runtime-rxjava2:1.0.0-beta05'
+    // Dagger Hilt
+    implementation("com.google.dagger:hilt-android:$hilt_version")
+    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
