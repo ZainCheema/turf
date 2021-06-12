@@ -1,7 +1,7 @@
 package com.zaincheema.turf.di.module
 import com.zaincheema.turf.BuildConfig
 import com.zaincheema.turf.api.TurfApiHelper
-import com.zaincheema.turf.api.TurfApiHelperImpl
+import com.zaincheema.turf.api.TurfApiImpl
 import com.zaincheema.turf.api.TurfApiService
 import dagger.Module
 import dagger.Provides
@@ -33,5 +33,6 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideApiHelper(apiHelper: TurfApiHelperImpl): TurfApiHelper = apiHelper
+    fun provideApiHelper(apiHelper: TurfApiImpl): TurfApiHelper = apiHelper
+
 }

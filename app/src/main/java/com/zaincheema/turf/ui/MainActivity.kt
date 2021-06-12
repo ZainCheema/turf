@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -19,160 +20,96 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.zaincheema.turf.api.TurfApiService
 import com.zaincheema.turf.model.Box
+import com.zaincheema.turf.viewmodels.BoxesViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.create
-import java.util.concurrent.TimeUnit
 
 @SuppressLint("RestrictedApi")
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    private val TAG: String = "MainActivity.kt"
-    private lateinit var Boxes: List<Box>
-    private var compositeDisposable = CompositeDisposable()
-    private val service = TurfApiService.retrofit.create<TurfApiService>()
-
-    private val colorsHex = listOf(
-        0xFF000000, // Black
-        0xFF888888, // Grey
-        0xFFFFFFFF, // White
-        0xFFFF0000, // Red
-        0xFF00FF00, // Green
-        0xFF0000FF, // Blue
-        0xFFFFFF00, // Yellow
-        0xFF00FFFF, // Light Blue
-    )
-
-    private var selectedColorHex: Long? = null
-
+    private val viewModel: BoxesViewModel by viewModels()
+    
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val disposable = io.reactivex.rxjava3.core.Observable.interval(0, 1, TimeUnit.SECONDS)
-            .timeInterval()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                service.getBoxes()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({ response -> onGetSuccess(response) }, { t -> onFailure(t) })
-            }
-
-        compositeDisposable.add(disposable)
-
         supportActionBar?.hide()
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
-    }
-
-    @ExperimentalAnimationApi
-    private fun onGetSuccess(response: List<Box>) {
-        Log.d(TAG, "Connected to API, loaded in Turf Boxes")
-        Log.d(TAG, response.toString())
-
-        Boxes = response
 
         setContent {
-            DisplayBoxes()
-        }
-    }
-
-    private fun onFailure(t: Throwable) {
-        Log.e(TAG, "Failed")
-        Log.e(TAG, t.message.toString())
-    }
-
-    private fun handleBoxClick(tb: Box) {
-        if (selectedColorHex != null) {
-            service.updateBoxColor(tb.copy(id = tb.id, colorHex = selectedColorHex!!))
-                .enqueue(object : Callback<Box> {
-                    override fun onResponse(call: Call<Box>, response: Response<Box>) {
-                        Toast.makeText(
-                            baseContext,
-                            "Color changed to $selectedColorHex",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        selectedColorHex = null
-                        Log.d(TAG, "Color changed to $selectedColorHex")
-                    }
-
-                    override fun onFailure(call: Call<Box>, t: Throwable) {
-                        Log.e(TAG, "Color change failed :(")
-                        Log.d(TAG, t.toString())
-                    }
-                })
-        } else {
-            Toast.makeText(baseContext, "Color hasn't been selected!", Toast.LENGTH_LONG).show()
+            Display()
         }
     }
 
     @ExperimentalAnimationApi
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun DisplayBoxes() {
-        Column {
-            TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(10),
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .padding(8.dp)
-            ) {
-                items(Boxes.size) { t ->
-                    Box(
-                        Modifier
-                            .clickable(true, null, null) {
-                                handleBoxClick(Boxes[t])
-                            }
-                            .aspectRatio(1f)
-                            .background(Color(Boxes[t].colorHex))
-                    )
-                }
-            }
-            // BowWithConstraints will provide the maxWidth used below
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                // LazyRow to display your items horizontally
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    state = rememberLazyListState(),
-                    contentPadding = PaddingValues(all = 1.dp)
-                ) {
-                    items(colorsHex) { item ->
-                        Box(
-                            modifier = Modifier
-                                .scale(0.75f)
-                                .aspectRatio(1f)
-                                .background(Color(item))
-                                .clickable {
-                                    Toast
-                                        .makeText(
-                                            baseContext,
-                                            "color selected: $item",
-                                            Toast.LENGTH_LONG
-                                        )
-                                        .show()
-                                    selectedColorHex = item
-                                }
-                        ) {
-                            //Text(item) // card's content
+    fun BoxGrid() {
+        LazyVerticalGrid(
+            cells = GridCells.Fixed(10),
+            modifier = Modifier
+                .background(Color.Transparent)
+                .padding(8.dp)
+        ) {
+            items(viewModel.getBoxesList().value!!.size) { t ->
+                Box(
+                    Modifier
+                        .clickable(true, null, null) {
+                            viewModel.handleBoxClick(viewModel.getBoxesList().value!![t])
                         }
+                        .aspectRatio(1f)
+                        .background(Color(viewModel.getBoxesList().value!![t].colorHex))
+                )
+            }
+        }
+    }
+
+    @ExperimentalAnimationApi
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun ColorPicker() {
+        // BowWithConstraints will provide the maxWidth used below
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            // LazyRow to display your items horizontally
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                state = rememberLazyListState(),
+                contentPadding = PaddingValues(all = 1.dp)
+            ) {
+                items(viewModel.getColorsList()) { item ->
+                    Box(
+                        modifier = Modifier
+                            .scale(0.75f)
+                            .aspectRatio(1f)
+                            .background(Color(item))
+                            .clickable {
+                                Toast
+                                    .makeText(
+                                        baseContext,
+                                        "color selected: $item",
+                                        Toast.LENGTH_LONG
+                                    )
+                                    .show()
+                                viewModel.setSelectedColor(item)
+                            }
+                    ) {
+                        //Text(item) // card's content
                     }
                 }
             }
+        }
+    }
+
+    @ExperimentalAnimationApi
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun Display() {
+        Column {
+            TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
+            BoxGrid()
+            ColorPicker()
         }
     }
 }
