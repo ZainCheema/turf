@@ -2,7 +2,6 @@ package com.zaincheema.turf.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -16,27 +15,27 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.zaincheema.turf.model.Box
 import com.zaincheema.turf.viewmodels.BoxesViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+
 
 @SuppressLint("RestrictedApi")
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: BoxesViewModel by viewModels()
-    
+
+
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-
+        viewModel.getBoxesList()
         setContent {
             Display()
         }
@@ -46,20 +45,21 @@ class MainActivity : AppCompatActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun BoxGrid() {
+        val boxes by viewModel.boxes.observeAsState()
         LazyVerticalGrid(
             cells = GridCells.Fixed(10),
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(8.dp)
         ) {
-            items(viewModel.getBoxesList().value!!.size) { t ->
+            items(viewModel.boxes.value!!.size) { t ->
                 Box(
                     Modifier
                         .clickable(true, null, null) {
-                            viewModel.handleBoxClick(viewModel.getBoxesList().value!![t])
+                            viewModel.handleBoxClick(viewModel.boxes.value!![t])
                         }
                         .aspectRatio(1f)
-                        .background(Color(viewModel.getBoxesList().value!![t].colorHex))
+                        .background(Color(viewModel.boxes.value!![t].colorHex))
                 )
             }
         }
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     fun Display() {
         Column {
             TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
-            BoxGrid()
+          //  BoxGrid()
             ColorPicker()
         }
     }

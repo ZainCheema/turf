@@ -1,8 +1,7 @@
 package com.zaincheema.turf.di.module
 import com.zaincheema.turf.BuildConfig
-import com.zaincheema.turf.api.TurfApiHelper
-import com.zaincheema.turf.api.TurfApiImpl
 import com.zaincheema.turf.api.TurfApiService
+import com.zaincheema.turf.respository.BoxesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class ApplicationModule {
-
     @Provides
     @Singleton
     fun provideRetrofit() : Retrofit =
@@ -29,10 +27,11 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit) = retrofit.create<TurfApiService>()
+    fun provideTurfApiService(retrofit: Retrofit) : TurfApiService = retrofit.create()
 
     @Provides
     @Singleton
-    fun provideApiHelper(apiHelper: TurfApiImpl): TurfApiHelper = apiHelper
+    fun provideRepository(turfApiService: TurfApiService) : BoxesRepository = BoxesRepository(turfApiService)
+
 
 }
