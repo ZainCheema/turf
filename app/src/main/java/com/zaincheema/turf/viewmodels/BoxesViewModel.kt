@@ -48,4 +48,8 @@ class BoxesViewModel @Inject constructor(
         repository.handleBoxClick(tb)
     }
 
+    fun removeCompositeDisposable() {
+        compositeDisposable.dispose()
+    }
+
 }
