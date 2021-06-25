@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.zaincheema.turf.ui.components.BoxesGridView
+import com.zaincheema.turf.ui.components.ColorPicker
 import com.zaincheema.turf.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,83 +51,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.removeCompositeDisposable()
     }
 
-    @ExperimentalAnimationApi
-    @OptIn(ExperimentalFoundationApi::class)
-    @Composable
-    fun BoxGrid() {
-        val boxes by viewModel.boxes.observeAsState()
-        if(boxes?.isNotEmpty() == true) {
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(10),
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .padding(8.dp)
-            ) {
-                boxes?.let {
-                    items(it.size) { t ->
-                        Box(
-                            Modifier
-                                .clickable(true, null, null) {
-                                   // viewModel.handleBoxClick(boxes!![t])
-                                    boxClicked = true
-                                    // If the countdown has been completed, allow
-                                    // the color picker to be visible
-                                    // Else, flash the countdown text red to show that
-                                    // there is time remaining
-                                    if (!viewModel.countdownOngoing.value!!) {
-                                        // TODO: ColorPicker visibility logic here
-                                    } else {
-                                        // TODO: Countdown text logic
-                                    }
-                                }
-                                .aspectRatio(1f)
-                                .background(Color(boxes!![t].colorHex))
-                        )
-                    }
-                }
-            }
-        } else {
-            Column(
-               modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
 
-            ) {
-                Text("LOADING")
-            }
-        }
-    }
-
-    @ExperimentalAnimationApi
-    @OptIn(ExperimentalFoundationApi::class)
-    @Composable
-    fun ColorPicker() {
-        // BoxWithConstraints will provide the maxWidth used below
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            // LazyRow to display your items horizontally
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                state = rememberLazyListState(),
-                contentPadding = PaddingValues(all = 1.dp)
-            ) {
-                items(viewModel.getColorsList()) { item ->
-                    Box(
-                        modifier = Modifier
-                            .scale(0.75f)
-                            .aspectRatio(1f)
-                            .background(Color(item))
-                            .clickable {
-                                // TODO: When the box is selected, instantly color that box for the user, before retrofit
-                                viewModel.setSelectedColor(item)
-                            }
-                    ) {
-                        // card's content
-                    }
-                }
-            }
-        }
-    }
 
     @ExperimentalAnimationApi
     @OptIn(ExperimentalFoundationApi::class)
@@ -133,7 +59,8 @@ class MainActivity : AppCompatActivity() {
     fun Display() {
         Column {
             TopAppBar(title = { Text(text = "turf") }, backgroundColor = Color.White)
-            BoxGrid()
+            BoxesGridView()
+            // TODO: AnimatedVisibility logic for colorpicker and countdown
             ColorPicker()
         }
     }
