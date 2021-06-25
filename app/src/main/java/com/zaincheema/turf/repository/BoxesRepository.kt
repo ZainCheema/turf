@@ -1,4 +1,4 @@
-package com.zaincheema.turf.respository
+package com.zaincheema.turf.repository
 
 import com.zaincheema.turf.api.TurfApiService
 import com.zaincheema.turf.model.Box

@@ -1,7 +1,7 @@
 package com.zaincheema.turf.di.module
 import com.zaincheema.turf.BuildConfig
 import com.zaincheema.turf.api.TurfApiService
-import com.zaincheema.turf.respository.BoxesRepository
+import com.zaincheema.turf.repository.BoxesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
