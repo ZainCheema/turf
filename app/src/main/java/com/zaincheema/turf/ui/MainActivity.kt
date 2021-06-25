@@ -2,7 +2,6 @@ package com.zaincheema.turf.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -24,23 +23,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.zaincheema.turf.viewmodels.BoxesViewModel
+import com.zaincheema.turf.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @SuppressLint("RestrictedApi")
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val viewModel: BoxesViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     private var boxClicked by mutableStateOf(false)
-    private var countdownComplete by mutableStateOf(true)
 
 
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        viewModel.getBoxesList()
+        viewModel.getBoxesFromService()
         setContent {
             Display()
         }
@@ -74,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                                     // the color picker to be visible
                                     // Else, flash the countdown text red to show that
                                     // there is time remaining
-                                    if (countdownComplete) {
+                                    if (!viewModel.countdownOngoing.value!!) {
                                         // TODO: ColorPicker visibility logic here
                                     } else {
                                         // TODO: Countdown text logic
@@ -102,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun ColorPicker() {
-        // BowWithConstraints will provide the maxWidth used below
+        // BoxWithConstraints will provide the maxWidth used below
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             // LazyRow to display your items horizontally
             LazyRow(
