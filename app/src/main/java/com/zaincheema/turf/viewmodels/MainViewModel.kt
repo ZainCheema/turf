@@ -13,6 +13,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -21,6 +24,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val repository: BoxesRepository
 ) : ViewModel() {
+
     private val TAG: String = "BoxesViewModel.kt"
     private val compositeDisposable = CompositeDisposable()
 
@@ -36,6 +40,30 @@ class MainViewModel @Inject constructor(
     val time: LiveData<String> = _time
 
 
+    private var selectedColorHex: Long? = null
+    private val colorsHex = listOf(
+        0xFF000000, // Black
+        0xFF888888, // Grey
+        0xFFFFFFFF, // White
+        0xFFFF0000, // Red
+        0xFF00FF00, // Green
+        0xFF0000FF, // Blue
+        0xFFFFFF00, // Yellow
+        0xFF00FFFF, // Light Blue
+    )
+
+    init {
+        countdownTimer = object : CountDownTimer(CountdownUtil.COUNTDOWN, 1000) {
+            override fun onTick(timeRemaining: Long) {
+                _time.value = timeRemaining.formatTime()
+            }
+
+            override fun onFinish() {
+                _countdownOngoing.value = false
+            }
+
+        }
+    }
 
     fun getBoxesFromService() {
         val disposable = io.reactivex.rxjava3.core.Observable.interval(0, 1, TimeUnit.SECONDS)
@@ -53,31 +81,35 @@ class MainViewModel @Inject constructor(
         compositeDisposable.add(disposable)
     }
 
-    fun startTimer() {
-        _countdownOngoing.value = true
-        countdownTimer = object : CountDownTimer(CountdownUtil.COUNTDOWN, 1000) {
-            override fun onTick(p0: Long) {
-                TODO("Not yet implemented")
-            }
+    fun handleBoxClick(tb: Box) {
+        if (selectedColorHex != null) {
+            repository.updateBoxColor(tb, selectedColorHex!!)
+                .enqueue(object : Callback<Box> {
+                    override fun onResponse(call: Call<Box>, response: Response<Box>) {
+                        // The color change has been successfully posted,
+                        // so now the countdown can begin
+                        selectedColorHex = null
+                        startCountdown()
+                    }
 
-            override fun onFinish() {
-                _countdownOngoing.value = false
-            }
-
-        }.start()
+                    override fun onFailure(call: Call<Box>, t: Throwable) {
+                        // TODO: Display error message
+                    }
+                })
+        }
     }
 
-
     fun getColorsList(): List<Long> {
-        return repository.getColorsList()
+        return colorsHex
     }
 
     fun setSelectedColor(color: Long) {
-        repository.setSelectedColor(color)
+        selectedColorHex = color
     }
 
-    fun handleBoxClick(tb: Box) {
-        repository.handleBoxClick(tb)
+    fun startCountdown() {
+        _countdownOngoing.value = true
+        countdownTimer!!.start()
     }
 
     fun removeCompositeDisposable() {
