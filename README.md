@@ -5,7 +5,9 @@
 
 "Turf" is an interactive game where every user interacts on the same 10x10 grid of boxes. Users can change the colour of these boxes, the goal being to try and create your own picture within the grid (if you can!)
 
-The purpose of me making this was to gain an understanding of what is expected from an Android Engineer in 2021. The app currently has the following:
+The purpose of me making this was to gain an understanding of what is expected from an Android Engineer in 2021.
+
+The app currently has the following:
 
 . Written in Kotlin, uses MVVM with Repository architecture
 . UI is state-driven using LiveData and Jetpack Compose
