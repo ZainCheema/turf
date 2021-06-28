@@ -14,7 +14,7 @@ The app currently has the following:
 . Retrofit, Moshi and RxJava used for Network Querying and Streaming</br>
 . Dependency Injection using Dagger Hilt</br>
 
-I wrote a RESTFul Web Service for the app, which was made using Python, and stores data via a MongoDB cluster. Source code for that can also be found on my Github. The service is hosted by Google Cloud Platform
+I wrote a RESTFul Web Service for the app, which was made using Python, and stores data via a MongoDB cluster.</br> Source code for that can be found in the root directory of this project. The service is hosted by Google Cloud Platform
 
 What I am working on within the app can be seen by clicking on the "Projects" tab on the repository.
 
