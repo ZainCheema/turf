@@ -9,10 +9,10 @@ The purpose of me making this was to gain an understanding of what is expected f
 
 The app currently has the following:
 
-. Written in Kotlin, uses MVVM with Repository architecture
-. UI is state-driven using LiveData and Jetpack Compose
-. Retrofit, Moshi and RxJava used for Network Querying and Streaming
-. Dependency Injection using Dagger Hilt
+. Written in Kotlin, uses MVVM with Repository architecture</br>
+. UI is state-driven using LiveData and Jetpack Compose</br>
+. Retrofit, Moshi and RxJava used for Network Querying and Streaming</br>
+. Dependency Injection using Dagger Hilt</br>
 
 I wrote a RESTFul Web Service for the app, which was made using Python, and stores data via a MongoDB cluster. Source code for that can also be found on my Github. The service is hosted by Google Cloud Platform
 
