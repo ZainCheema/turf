@@ -19,5 +19,6 @@ What I am working on within the app can be seen by clicking on the "Projects" ta
 Currently working on:
 
 . Significant UI and UX polishing</br>
-. Unit Tests with JUnit and Espresso
+. Unit Tests with JUnit and Espresso</br>
+. Network error handling
 
