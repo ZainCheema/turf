@@ -103,8 +103,12 @@ class MainViewModel @Inject constructor(
         return colorsHex
     }
 
-    fun setSelectedColor(color: Long) {
+    fun selectColor(color: Long) {
         selectedColorHex = color
+    }
+
+    fun deselectColor() {
+        selectedColorHex = null
     }
 
     fun startCountdown() {
